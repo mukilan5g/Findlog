@@ -9,9 +9,9 @@ config = {
     'author': 'Mukilan_E',
     'author_email': 'mukilan@5gindia.net',
     'version': '0.1',
-    'install_requires': ['nose','py2exe'],
+    'install_requires': ['nose'],
     'packages': ['findlog'],
-    'scripts': ['findlog/findlog.py'],
+	'scripts': ['findlog/findlog.py'],
     'name': 'findlog'
 
 }

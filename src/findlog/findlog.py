@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import re 
+import re, os
 import argparse
 from sys import argv
 from collections import Counter, defaultdict
@@ -8,27 +8,69 @@ from os.path import isfile, join
 
 
 def get_files_in_dir(path):
+    ''' This function takes the path and return only the list files in that leaf directory.
+	    
+		for example:
+		get_files_in_dir(C:\users\mukilan\desktop)
+		
+		output:
+		['new_file.txt','setup.py']
+		'''
     return [ file for file in listdir(path) 
             if isfile(
             join(path,file)) ]
 
 def search_files_by_re(file):
+    ''' This function takes the full path of the file. If the file name is a regular expression,
+	    it checks for the match of the pattern and returns the file.
+		
+		for example:
+		search_files_by_re('C:\\users\\radhu\\desktop\\[a-z0-9]*.py$')
+		
+		output:
+		['C:\\users\\radhu\\desktop\\webcrawl1.py']
+		
+		note:
+		Always specify the path with '\\',don't use '\'.Because the function won't read.It will 
+		throw this error:
+		{WindowsError: [Error 123] The filename, directory name, or volume label syntax is incorrect:}
+	'''
     path = file.split('\\')
     files_in_directory = get_files_in_dir('\\'.join(path[:len(path)-1]))
-    return [ '\\'.join(path[:len(path)-1])+'\\'+file for file in files_in_directory
-	        if re.match(path[len(path)-1], file)]
+    return [ '\\'.join(path[:len(path)-1]) + '\\' + file for file in files_in_directory
+	        if re.match(path[len(path)-1], file) ]
 		    
-def list_all_match(patterns):
+def get_files_match_any(patterns):
+    '''This function takes the list of patterns and return the files which contains the contents
+	   matches those patterns anywhere in the file.
+	   It will return all files if any one of the pattern matches with the file contents.
+	   
+	   for example:
+	   get_files_match_any(['^w', '^i'])
+	   
+	   output:
+	   defaultdict(<type 'list'>, {'^w': ['C:\\Users\\Radhu\\Desktop\\webcrawl1.py']})
+	   '''
     list_of_files=defaultdict(list)
     for pattern in patterns:
-        for file_pattern in (open('E:\\git\\skeleton\\src\\findlog\\.files', 'r').read()).split('\n'):
+        for file_pattern in (open('.files', 'r').read()).split('\n'):
             for file in search_files_by_re(file_pattern):
                 if re.search(pattern, open(file, 'r').read()):
                     list_of_files[pattern].append(file)
     return list_of_files
 
-def list_anything_match(patterns):
-    files  = iter(list_all_match(patterns).values())
+def get_files_match_all(patterns):
+    '''This function takes the list of patterns and return the files which contains the contents 
+	matches those patterns anywhere in the file.
+	It will return all files only if all the pattern matches with the file contents.
+	
+	for example:
+	get_files_match_all(['^[a-z]','[a-z]$'])
+	
+	output:
+	{"['^[a-z]', '[a-z]$']": ['C:\\Users\\Radhu\\Desktop\\webcrawl1.py']}
+	'''
+    files  = iter(get_files_match_any(patterns).values())
     match_file = files.next()
     while True:
         try:
@@ -47,9 +89,9 @@ def display(match):
 
 def findall(patterns, type):
     if type == 'or':
-       display(list_all_match(patterns))
+       display(get_files_match_any(patterns))
     else:
-       display(list_anything_match(patterns))
+       display(get_files_match_all(patterns))
     raw_input()
 
 if __name__ == '__main__':
