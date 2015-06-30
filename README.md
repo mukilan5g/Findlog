@@ -22,3 +22,16 @@ Before installing the package:
 This package uses distutils, which is the default way of installing python modules. To install in your home directory, use:
 
 ``` python setup.py install ```
+
+Now, you can use this package in other libraries
+
+Suppose if you want to create an executable file and you want to execute it like a command,use:
+
+``` python setup_exe.py py2exe```
+
+It will create an executable file for you.
+
+Now you need to add the environmental variable, for that you have to copy the full path of the dist directory which is created in your src directory.
+
+And add it to environment variable:
+like this ``` ;E:\git\skeleton\src\dist ``` 
